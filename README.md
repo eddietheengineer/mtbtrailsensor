@@ -13,7 +13,7 @@ This system works okay when the trail is frequently ridden, but on more remote/l
 
 Bill of Materials:
   
-      $69 - Particle Electron (cellular IoT device with built in Lipo charging circuit and deep sleep support)
+      $69 - Particle Electron (cellular IoT device)
       $0  - Lipo Battery (2000mAh) - included with Electron
       $10 - FreedomPop SIM Card (200MB/month free data)
       $3  - BME280 Sensor (Air Temp/Humidity/Pressure)
@@ -22,6 +22,7 @@ Bill of Materials:
       $1  - Capacitive Soil Moisture Sensor V1.2 (Soil Moisture)
       $1  - NPN Transistor (Switch power to sensors off during sleep)
       $5  - 2.5W 5V/500mA Solar Panel
+      Total: $93
      
 Current readings (still tweaking code):
   https://thingspeak.com/channels/852007
