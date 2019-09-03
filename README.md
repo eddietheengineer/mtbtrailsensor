@@ -26,3 +26,5 @@ Bill of Materials:
      
 Current readings (still tweaking code):
   https://thingspeak.com/channels/852007
+
+![Image of Wiring](https://github.com/jdlongenecker/mtbtrailsensor/blob/master/MTB%20Trail%20Sensor%20Wiring%20Diagram.png?raw=true)
