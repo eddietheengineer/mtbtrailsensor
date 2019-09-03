@@ -5,8 +5,8 @@ BME280 airSensor;
 //Thingspeak client configuration
 #include <ThingSpeak.h>
 TCPClient client;
-unsigned int myChannelNumber = YOUR_CHANNEL_ID_HERE; // replace with your ChannelID
-const char * myWriteAPIKey = "YOUR_API_KEY_HERE"; // replace with your WriteAPIKey
+unsigned int myChannelNumber = YOUR_CHANNEL_ID; // replace with your ChannelID
+const char * myWriteAPIKey = "YOUR_API_KEY"; // replace with your WriteAPIKey
 
 //FreedomPop Configuration -- if you use Particle SIM, you do not need this
 STARTUP(cellular_credentials_set("fp.com.attz", "", "", NULL));
@@ -54,7 +54,7 @@ void setup() {
     //Configure Charge Controller for Solar Panel
     pmic.begin();
     pmic.setChargeCurrent(0,0,1,0,0,0);
-    pmic.setInputVoltageLimit(4840);
+    //pmic.setInputVoltageLimit(4840);
     chargeStatus = pmic.getSystemStatus();
     
             Serial.print("Charge Status: ");
@@ -80,7 +80,9 @@ void loop() {
 
     if(fuel.getSoC() > 20){
         Serial.println("");
+        delay(100);
         getAirTemp();
+        delay(100);
         getGroundTemp();
         getEnclosureTemp();
         getSoilData();
@@ -95,11 +97,15 @@ void getAirTemp(){
     float airTempC = airSensor.readTempC();
     airTemp = airSensor.readTempF();
     airPressure = airSensor.readFloatPressure();
-    airHumidity = airSensor.readFloatPressure();
+    airHumidity = airSensor.readFloatHumidity();
     
 	        Serial.print("Temperature: ");
 	        Serial.print(airTemp, 2);
         	Serial.println(" degrees F");
+        	
+        	Serial.print("Temperature: ");
+	        Serial.print(airSensor.readTempF(), 2);
+	        Serial.println(" degrees F");
 
         	Serial.print("Pressure: ");
         	Serial.print(airPressure, 2);
@@ -167,7 +173,7 @@ void publishData(){
     Particle.connect();
     
         ThingSpeak.setField(1, airTemp);
-        ThingSpeak.setField(2, airPressure);
+        ThingSpeak.setField(2, airHumidity);
         ThingSpeak.setField(3, groundTemp);
         ThingSpeak.setField(4, enclosureTemp);
         ThingSpeak.setField(5, soilSenseCap);
