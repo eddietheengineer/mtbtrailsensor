@@ -5,8 +5,8 @@ BME280 airSensor;
 //Thingspeak client configuration
 #include <ThingSpeak.h>
 TCPClient client;
-unsigned int myChannelNumber = YOUR_CHANNEL_ID; // replace with your ChannelID
-const char * myWriteAPIKey = "YOUR_API_KEY"; // replace with your WriteAPIKey
+unsigned int myChannelNumber = YOURCHANNELID; // replace with your ChannelID
+const char * myWriteAPIKey = "YOURAPIKEY"; // replace with your WriteAPIKey
 
 //FreedomPop Configuration -- if you use Particle SIM, you do not need this
 STARTUP(cellular_credentials_set("fp.com.attz", "", "", NULL));
@@ -33,6 +33,7 @@ float soilSenseCap;
 float airTemp;
 float airPressure;
 float airHumidity;
+float airDewpoint;
 float groundTemp;
 float enclosureTemp;
 float voltage;
@@ -52,13 +53,13 @@ void setup() {
     digitalWrite(PowerPin, HIGH);
 
     //Configure Charge Controller for Solar Panel
-    pmic.begin();
-    pmic.setChargeCurrent(0,0,1,0,0,0);
+    //pmic.begin();
+    //pmic.setChargeCurrent(0,0,1,0,0,0);
     //pmic.setInputVoltageLimit(4840);
-    chargeStatus = pmic.getSystemStatus();
+    //chargeStatus = pmic.getSystemStatus();
     
-            Serial.print("Charge Status: ");
-            Serial.println(chargeStatus);
+            //Serial.print("Charge Status: ");
+            //Serial.println(chargeStatus);
 
     //Configure BME280
   	airSensor.settings.commInterface = I2C_MODE;
@@ -90,16 +91,35 @@ void loop() {
         publishData();
     }
     
-    System.sleep(SLEEP_MODE_DEEP, 600);
+    System.sleep(SLEEP_MODE_DEEP, 300);
 }
 
 void getAirTemp(){
     float airTempC = airSensor.readTempC();
     airTemp = airSensor.readTempF();
-    airPressure = airSensor.readFloatPressure();
+    airPressure = airSensor.readFloatPressure()*29.9212/101325;
     airHumidity = airSensor.readFloatHumidity();
     
-	        Serial.print("Temperature: ");
+    if(airTempC > 0)
+    {
+        float a = 6.1121;
+        float b = 17.368;
+        float c = 238.88;
+        float Gamma = log(airHumidity/100) + (b*airTempC)/(c + airTempC);
+        airDewpoint = (c*Gamma)/(b - Gamma);
+    }
+    if(airTempC < 0)
+    {
+        float a = 6.1121;
+        float b = 17.966;
+        float c = 247.15;
+        float Gamma = log(airHumidity/100) + (b*airTempC)/(c + airTempC);
+        airDewpoint = (c*Gamma)/(b - Gamma);
+    }
+    
+    
+    
+	        /*Serial.print("Temperature: ");
 	        Serial.print(airTemp, 2);
         	Serial.println(" degrees F");
         	
@@ -113,7 +133,7 @@ void getAirTemp(){
 
         	Serial.print("%RH: ");
         	Serial.print(airHumidity, 2);
-        	Serial.println(" %");
+        	Serial.println(" %");*/
 }
 
 void getGroundTemp(){
@@ -174,11 +194,11 @@ void publishData(){
     
         ThingSpeak.setField(1, airTemp);
         ThingSpeak.setField(2, airHumidity);
-        ThingSpeak.setField(3, groundTemp);
-        ThingSpeak.setField(4, enclosureTemp);
-        ThingSpeak.setField(5, soilSenseCap);
-        ThingSpeak.setField(6, chargeStatus);
-        ThingSpeak.setField(7, voltage);
+        ThingSpeak.setField(3, airDewpoint);
+        ThingSpeak.setField(4, airPressure);
+        ThingSpeak.setField(5, groundTemp);
+        ThingSpeak.setField(6, soilSenseCap);
+        ThingSpeak.setField(7, enclosureTemp);
         ThingSpeak.setField(8, fuelLevel);
         ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
         
